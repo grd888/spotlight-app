@@ -1,10 +1,12 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 
-export default function Profile() {
+const bookmarks = () => {
   return (
     <View>
-      <Text>Profile Screen</Text>
+      <Text>bookmarks</Text>
     </View>
   )
 }
+
+export default bookmarks
