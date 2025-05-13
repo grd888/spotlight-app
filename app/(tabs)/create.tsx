@@ -2,6 +2,7 @@ import { COLORS } from "@/constants/theme";
 import { styles } from "@/styles/create.styles";
 import { useUser } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { useState } from "react";
@@ -11,10 +12,10 @@ import {
   Platform,
   ScrollView,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
-import { Image } from "expo-image";
 
 const Create = () => {
   const router = useRouter();
@@ -74,7 +75,7 @@ const Create = () => {
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 20 : 0}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
     >
       <View style={styles.header}>
         <TouchableOpacity
@@ -111,8 +112,7 @@ const Create = () => {
         bounces={false}
         keyboardShouldPersistTaps="handled"
       >
-        <View
-          style={[styles.content, isSharing && styles.contentDisabled]}>
+        <View style={[styles.content, isSharing && styles.contentDisabled]}>
           <View style={styles.imageSection}>
             <Image
               source={selectedImage}
@@ -132,6 +132,25 @@ const Create = () => {
               />
               <Text style={styles.changeImageText}>Change Image</Text>
             </TouchableOpacity>
+          </View>
+          <View style={styles.inputSection}>
+            <View style={styles.captionContainer}>
+              <Image
+                source={user?.imageUrl}
+                style={styles.userAvatar}
+                contentFit="cover"
+                transition={200}
+              />
+              <TextInput
+                style={styles.captionInput}
+                placeholder="What's on your mind?"
+                placeholderTextColor={COLORS.grey}
+                multiline
+                value={caption}
+                onChangeText={setCaption}
+                editable={!isSharing}
+              />
+            </View>
           </View>
         </View>
       </ScrollView>
