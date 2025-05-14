@@ -1,7 +1,9 @@
 import { COLORS } from "@/constants/theme";
+import { api } from "@/convex/_generated/api";
 import { styles } from "@/styles/create.styles";
 import { useUser } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
+import { useMutation } from "convex/react";
 import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
@@ -16,6 +18,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import * as FileSystem from "expo-file-system";
 
 const Create = () => {
   const router = useRouter();
@@ -37,8 +40,37 @@ const Create = () => {
     }
   };
 
-  const handleShare = () => {
-    setIsSharing(true);
+  const generateUploadUrl = useMutation(api.posts.generateUploadUrl);
+  const createPost = useMutation(api.posts.createPost);
+
+  const handleShare = async () => {
+    if (!selectedImage) {
+      return;
+    }
+    try {
+      setIsSharing(true);
+      const uploadUrl = await generateUploadUrl();
+      const uploadResult = await FileSystem.uploadAsync(uploadUrl,
+        selectedImage,
+        {
+          httpMethod: "POST",
+          uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
+          mimeType: "image/jpeg",
+        });
+      if (uploadResult.status !== 200) throw new Error("Failed to upload image");
+      const { storageId } = JSON.parse(uploadResult.body);
+
+      await createPost({
+        storageId,
+        caption,
+      });
+
+      router.push("/(tabs)");
+    } catch (error) {
+      console.error("Error sharing post:", error);
+    } finally {
+      setIsSharing(false);
+    }
   };
 
   if (!selectedImage) {
